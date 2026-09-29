@@ -4,6 +4,8 @@ A small HTML and Java demonstration that runs a Java stack class in the browser 
 
 The Java class `MyStack` uses `ArrayDeque` to implement `push`, `pop`, `peek`, `contents`, and `export`. The HTML page calls these Java methods through CheerpJ and displays the returned stack values.
 
+[Demo@github.io](https://sekewei.github.io/cheerpj/cheerpj.html)
+
 ## Requirements
 
 - macOS, Linux, or Windows
