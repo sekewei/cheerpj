@@ -16,8 +16,8 @@
 
     async function init() {
       await cheerpjInit();
-      // Use /app/ for local server, /cheerpj/ for GitHub Pages subdirectory
-      const classpath = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '/app/' : '/cheerpj/';
+      // Use /app/ for local server, empty string for GitHub Pages (same dir as HTML)
+      const classpath = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '/app/' : '';
       const lib = await cheerpjRunLibrary(classpath);
       const MyStack3 = await lib.MyStack3;
       stack = await new MyStack3();
