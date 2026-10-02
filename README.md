@@ -1,10 +1,10 @@
-# CheerpJ Java Stack Demo
+# CheerpJ 3 Java Stack Demo
 
-A small HTML and Java demonstration that runs a Java stack class in the browser using [CheerpJ](https://leaningtech.com/cheerpj/).
+A small HTML and Java demonstration of running Java in the browser with [CheerpJ 3](https://leaningtech.com/cheerpj/). The page loads the compiled `MyStack3.class` file directly from the web-server root and calls its methods through CheerpJ library mode.
 
-The Java class `MyStack` uses `ArrayDeque` to implement `push`, `pop`, `peek`, `contents`, and `export`. The HTML page calls these Java methods through CheerpJ and displays the returned stack values.
+`MyStack3.class` is compiled for Java 8, which is the bytecode version supported by the CheerpJ 3.0 runtime used by this demo.
 
-[Demo@github.io](https://sekewei.github.io/cheerpj/cheerpj.html)
+[Live demo](https://sekewei.github.io/cheerpj/cheerpj-v3.html)
 
 ## Requirements
 
@@ -40,11 +40,9 @@ cd github/cheerpj
 ./run.sh
 ```
 
-Then open:
+`run.sh` builds `MyStack3.class` for Java 8 and starts the local Python server, which supports HTTP byte-range requests. Open the demo at:
 
-<http://localhost:8001/cheerpj.html>
-
-`run.sh` builds `MyStack.jar` and starts the range-enabled Python server. CheerpJ needs this server to load JAR files correctly.
+<http://localhost:8001/cheerpj-v3.html>
 
 To use another port:
 
@@ -52,7 +50,7 @@ To use another port:
 ./run.sh 8080
 ```
 
-Open <http://localhost:8080/cheerpj.html>.
+Open <http://localhost:8080/cheerpj-v3.html>.
 
 To build without starting the server:
 
@@ -92,100 +90,43 @@ git remote -v
 
 ## Use the demo
 
-1. Enter a value.
-2. Select **Push** to add it to the Java stack.
-3. Select **Peek** to view the top value.
-4. Select **Pop** to remove the top value.
-5. Select **Export** to retrieve and display all stack elements.
-
-The first pushed value appears at the bottom. Later values are placed above it, matching LIFO behavior.
+Select **Push**, **Peek**, or **Pop**. Each result is prepended to the output, with earlier messages retained below it.
 
 ## Project files
 
 | File | Purpose |
 | --- | --- |
-| `cheerpj.html` | Browser interface and CheerpJ Java calls |
-| `MyStack.java` | Java stack implementation using `ArrayDeque` |
-| `MyStack.jar` | Compiled Java class loaded by CheerpJ |
-| `build.sh` | Compiles `MyStack.java` and creates the JAR |
-| `run.sh` | Builds the project and starts the local server |
+| `cheerpj-v3.html` | CheerpJ 3 browser interface loading a class from `/app/` |
+| `MyStack3.java` | Java stack implementation |
+| `MyStack3.class` | Java 8 class file built for the demo |
+| `build.sh` | Compiles `MyStack3.java` for Java 8 |
+| `run.sh` | Builds the class file and starts the local server |
 | `server.py` | Python HTTP server with byte-range support |
 
 ## Add or update a Java class
 
-### Replace `MyStack.java`
+The demo serves `MyStack3.class` from the project root. Its classpath is `/app/`, which maps to that web-server root. No JAR is needed.
 
-Edit the Java source, then rebuild the JAR:
-
-```bash
-./build.sh
-```
-
-Refresh the browser with **Command+R**. If the browser uses an old JAR, use a hard refresh or update the query version in `cheerpj.html`:
+`build.sh` compiles the class with `javac --release 8`. To load another default-package class from the same directory, resolve it from the library object and instantiate it:
 
 ```javascript
-const stackJar = "/MyStack.jar?v=11";
+await cheerpjInit();
+const lib = await cheerpjRunLibrary("/app/");
+const Calculator = await lib.Calculator;
+const calculator = await new Calculator();
 ```
 
-### Add a separate Java class
+Call Java methods directly on the instance and await their results. For classes in packages, preserve the package directory structure under the web root and resolve the class through its package path, such as `lib.com.example.Calculator`.
 
-Suppose the new class is named `Calculator`.
-
-1. Create `Calculator.java` in this directory.
-2. Compile it:
-
-   ```bash
-   javac Calculator.java
-   ```
-
-3. Create its JAR:
-
-   ```bash
-   jar cfe Calculator.jar Calculator Calculator.class
-   ```
-
-4. Update the HTML class and JAR paths:
-
-   ```javascript
-   const calculatorJar = "/Calculator.jar?v=1";
-   await cheerpjInit({ preloadResources: [calculatorJar] });
-   await cheerpjRunMain("Calculator", "/app/Calculator.jar");
-   const calculator = await cjNew("Calculator");
-   ```
-
-5. Call public Java methods with `cjCall`:
-
-   ```javascript
-   const result = await cjCall(calculator, "add", 2, 3);
-   ```
-
-6. Update `build.sh` if the new class should be built automatically:
-
-   ```sh
-   javac MyStack.java Calculator.java
-   jar cfe MyStack.jar MyStack MyStack.class
-   jar cfe Calculator.jar Calculator Calculator.class
-   ```
-
-### Add a Java class with dependencies
-
-If a class uses multiple source files, compile all of them and include the resulting class files in the JAR:
+For classes with dependencies, compile all source files for Java 8 and make the resulting `.class` files available under the web root:
 
 ```bash
-javac Calculator.java CalculatorUtils.java
-jar cfe Calculator.jar Calculator Calculator.class CalculatorUtils.class
+javac --release 8 Calculator.java CalculatorUtils.java
 ```
-
-For larger projects, use a Java build tool such as Maven or Gradle instead of maintaining JAR commands manually.
 
 ## Important CheerpJ paths
 
-The browser uses two related paths:
-
-- `/MyStack.jar` is the URL requested by the browser.
-- `/app/MyStack.jar` is the CheerpJ class path used by `cheerpjRunMain`.
-
-Keep the JAR filename consistent in both places. The server runs from this project directory, so the JAR must be stored beside `cheerpj.html`.
+`cheerpjRunLibrary("/app/")` loads the project directory as the classpath. The `/app/` virtual path maps to the web-server root, where `MyStack3.class` is served directly.
 
 ## Troubleshooting
 
@@ -203,8 +144,8 @@ Reload the page. The HTML stores the initialization promise and should initializ
 
 ### Java changes do not appear
 
-Rebuild the JAR and refresh the browser. Increment the `?v=` value in `cheerpj.html` to bypass browser caching.
+Run `./build.sh` to rebuild `MyStack3.class`, then refresh the page.
 
-### The JAR cannot be loaded
+### Java files cannot be loaded locally
 
-Start the project server with `./run.sh`. Do not open `cheerpj.html` directly with a `file://` URL, and do not use a basic server that lacks byte-range support.
+Start the project server with `./run.sh`; it supports byte-range requests used by CheerpJ. Do not open the HTML directly with a `file://` URL. GitHub Pages also supports byte ranges, so the custom Python server is only needed for local development.

@@ -8,7 +8,7 @@ if ! command -v javac >/dev/null 2>&1; then
   exit 1
 fi
 
-javac MyStack.java
-jar cfe MyStack.jar MyStack MyStack.class
+javac --release 8 MyStack3.java
+#jar cfe MyStack3.jar MyStack3 MyStack3.class
 
-echo "Built MyStack.jar"
+echo "Built MyStack3.class"

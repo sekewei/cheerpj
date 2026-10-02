@@ -49,5 +49,5 @@ class RangeRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 8001
 server = http.server.ThreadingHTTPServer(("127.0.0.1", port), RangeRequestHandler)
-print(f"Serving CheerpJ demo at http://localhost:{port}/cheerpj.html")
+print(f"Serving CheerpJ demo at http://localhost:{port}/cheerpj-v3.html")
 server.serve_forever()
