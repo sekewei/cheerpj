@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CheerpJ v3 Demo</title>
+  <script src="https://cjrtnc.leaningtech.com/3.0/cj3loader.js"></script>
+</head>
+<body>
+  <button id="pushBtn">Push</button>
+  <button id="popBtn">Pop</button>
+  <button id="peekBtn">Peek</button>
+  <p id="out">Loading Java...</p>
+
+  <script>
+    let stack;
+
+    async function init() {
+      await cheerpjInit();
+      const lib = await cheerpjRunLibrary("/app/");
+      const MyStack3 = await lib.MyStack3;
+      stack = await new MyStack3();
+      document.getElementById("out").textContent = "Java ready!";
+    }
+
+    function prependOutput(message) {
+      const out = document.getElementById("out");
+      out.prepend(document.createTextNode(String(message)), document.createElement("br"));
+    }
+
+    document.getElementById("pushBtn").onclick = async () => {
+      if (!stack) return;
+      const val = "Item-" + Math.floor(Math.random() * 100);
+      prependOutput(await stack.push(val));
+    };
+
+    document.getElementById("popBtn").onclick = async () => {
+      if (!stack) return;
+      prependOutput(await stack.pop());
+    };
+
+    document.getElementById("peekBtn").onclick = async () => {
+      if (!stack) return;
+      prependOutput(await stack.peek());
+    };
+
+    init().catch((error) => {
+      document.getElementById("out").textContent = "Java failed to load: " + error.message;
+      console.error(error);
+    });
+  </script>
+</body>
+</html>
