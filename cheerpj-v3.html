@@ -16,7 +16,9 @@
 
     async function init() {
       await cheerpjInit();
-      const lib = await cheerpjRunLibrary("/app/");
+      // Use relative path for GitHub Pages, /app/ for local server
+      const classpath = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '/app/' : './';
+      const lib = await cheerpjRunLibrary(classpath);
       const MyStack3 = await lib.MyStack3;
       stack = await new MyStack3();
       document.getElementById("out").textContent = "Java ready!";
